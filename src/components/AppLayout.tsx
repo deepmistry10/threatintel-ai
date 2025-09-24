@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Shield, BarChart3, Search, Brain, Settings, LogOut, Menu, X } from "lucide-react";
+import { Shield, BarChart3, Search, Brain, Settings, LogOut, Menu, X, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useNavigate, useLocation } from "react-router";
@@ -18,6 +18,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: BarChart3 },
+    { name: "Incidents", href: "/dashboard/incidents", icon: AlertTriangle },
     { name: "IOCs", href: "/dashboard/iocs", icon: Shield },
     { name: "Security Logs", href: "/dashboard/logs", icon: Search },
     { name: "AI Analysis", href: "/dashboard/analysis", icon: Brain },

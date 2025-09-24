@@ -8,6 +8,7 @@ import IOCManager from "@/pages/IOCManager";
 import SecurityLogs from "@/pages/SecurityLogs";
 import AIAnalysisView from "@/pages/AIAnalysisView";
 import ThreatHunt from "@/pages/ThreatHunt";
+import Incidents from "@/pages/Incidents";
 
 export default function DashboardRoutes() {
   const { isLoading, isAuthenticated } = useAuth();
@@ -42,6 +43,7 @@ export default function DashboardRoutes() {
         <Route path="/logs" element={<SecurityLogs />} />
         <Route path="/analysis" element={<AIAnalysisView />} />
         <Route path="/hunt" element={<ThreatHunt />} />
+        <Route path="/incidents" element={<Incidents />} />
       </Routes>
     </AppLayout>
   );

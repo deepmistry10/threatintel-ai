@@ -21,6 +21,7 @@ import type * as auth from "../auth.js";
 import type * as dashboard from "../dashboard.js";
 import type * as http from "../http.js";
 import type * as hunt from "../hunt.js";
+import type * as incidents from "../incidents.js";
 import type * as iocs from "../iocs.js";
 import type * as logs from "../logs.js";
 import type * as sampleData from "../sampleData.js";
@@ -44,6 +45,7 @@ declare const fullApi: ApiFromModules<{
   dashboard: typeof dashboard;
   http: typeof http;
   hunt: typeof hunt;
+  incidents: typeof incidents;
   iocs: typeof iocs;
   logs: typeof logs;
   sampleData: typeof sampleData;

@@ -65,6 +65,19 @@ export const logLevelValidator = v.union(
   v.literal(LOG_LEVELS.CRITICAL),
 );
 
+// Add incident status constants and validator
+export const INCIDENT_STATUS = {
+  OPEN: "open",
+  IN_PROGRESS: "in_progress",
+  RESOLVED: "resolved",
+} as const;
+
+export const incidentStatusValidator = v.union(
+  v.literal(INCIDENT_STATUS.OPEN),
+  v.literal(INCIDENT_STATUS.IN_PROGRESS),
+  v.literal(INCIDENT_STATUS.RESOLVED),
+);
+
 const schema = defineSchema(
   {
     ...authTables,
@@ -172,6 +185,26 @@ const schema = defineSchema(
       .index("by_analyzed", ["analyzed"])
       .index("by_source", ["source"])
       .index("by_timestamp", ["timestamp"]),
+
+    // Incidents (MVP)
+    incidents: defineTable({
+      title: v.string(),
+      description: v.optional(v.string()),
+      severity: severityValidator,
+      status: incidentStatusValidator,
+      assignee: v.optional(v.id("users")),
+      tags: v.array(v.string()),
+      evidence: v.array(
+        v.object({
+          kind: v.union(v.literal("ioc"), v.literal("log"), v.literal("analysis")),
+          refId: v.string(),
+        }),
+      ),
+      createdBy: v.id("users"),
+    })
+      .index("by_status", ["status"])
+      .index("by_assignee", ["assignee"])
+      .index("by_severity", ["severity"]),
 
     // Audit Logs
     auditLogs: defineTable({
