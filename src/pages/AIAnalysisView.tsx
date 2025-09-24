@@ -34,6 +34,7 @@ export default function AIAnalysisView() {
 
   const [manualTitle, setManualTitle] = useState<string>("manual_input");
   const [manualContent, setManualContent] = useState<string>("");
+  const [running, setRunning] = useState<boolean>(false);
 
   const runAI = useAction(api.ai.generateAndSaveAnalysis);
   const createSamples = useMutation(api.aiAnalysis.createSampleAnalyses);
@@ -70,6 +71,7 @@ export default function AIAnalysisView() {
       return;
     }
     try {
+      setRunning(true);
       const a = await runAI({ content: manualContent, targetType: "manual_input" });
       await saveAnalysis({
         targetType: "manual_input",
@@ -86,7 +88,15 @@ export default function AIAnalysisView() {
       handleRefresh();
     } catch (e) {
       console.error(e);
-      toast.error("AI analysis failed");
+      const msg =
+        (e as any)?.data?.message ||
+        (e as any)?.message ||
+        "AI analysis failed";
+      toast.error(msg.includes("OpenRouter API key not configured")
+        ? "AI analysis failed: OpenRouter API key not configured. Please add OPENROUTER_API_KEY in Integrations."
+        : `AI analysis failed: ${msg}`);
+    } finally {
+      setRunning(false);
     }
   };
 
@@ -226,9 +236,11 @@ export default function AIAnalysisView() {
               onChange={(e) => setManualContent(e.target.value)}
             />
             <div className="flex justify-end">
-              <Button className="glow-green" onClick={handleRunAI}>
+              <Button className="glow-green" onClick={handleRunAI} 
+               disabled={running}
+              >
                 <Play className="mr-2 h-4 w-4" />
-                Run AI Analysis
+                {running ? "Running..." : "Run AI Analysis"}
               </Button>
             </div>
           </div>
