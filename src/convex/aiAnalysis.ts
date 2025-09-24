@@ -8,6 +8,8 @@ export const getAnalysis = query({
     minConfidence: v.optional(v.number()),
     limit: v.optional(v.number()),
     liveOnly: v.optional(v.boolean()),
+    // Accept a dummy key to force refetches from the client
+    _k: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     let q = ctx.db.query("aiAnalysis");
@@ -117,5 +119,37 @@ export const createSampleAnalyses = mutation({
     }
 
     return { created: sampleAnalyses.length };
+  },
+});
+
+export const saveAnalysisPublic = mutation({
+  args: {
+    targetType: v.string(),
+    analysisType: v.string(),
+    summary: v.string(),
+    details: v.string(),
+    recommendations: v.array(v.string()),
+    severity: v.string(),
+    confidence: v.number(),
+    isDemo: v.optional(v.boolean()),
+    metadata: v.optional(v.object({
+      model: v.optional(v.string()),
+      processingTime: v.optional(v.number()),
+      dataPoints: v.optional(v.number()),
+    })),
+  },
+  handler: async (ctx, args) => {
+    const id = await ctx.db.insert("aiAnalysis", {
+      targetType: args.targetType,
+      analysisType: args.analysisType,
+      summary: args.summary,
+      details: args.details,
+      recommendations: args.recommendations,
+      severity: args.severity as any,
+      confidence: args.confidence,
+      metadata: args.metadata,
+      isDemo: args.isDemo,
+    });
+    return id;
   },
 });
