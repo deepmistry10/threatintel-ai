@@ -28,7 +28,7 @@ export const generateAndSaveAnalysis = action({
           messages: [
             {
               role: "system",
-              content: "You are a cybersecurity threat analyst. Analyze the provided security data and return a JSON response with: summary (brief threat description), details (detailed analysis), recommendations (array of actionable steps), severity (low/medium/high/critical), confidence (0-100 number)."
+              content: "You are a senior cybersecurity threat analyst. Analyze the provided security data and return a STRICT JSON object with these fields ONLY: summary (1–2 sentence concise threat description), details (start with a short 'Cause:' paragraph explaining likely root cause, followed by deeper technical analysis), recommendations (an array of actionable remediation steps ordered by priority), severity (one of: low, medium, high, critical), confidence (number 0-100). Keep responses precise and practical for a SOC. No extra keys, no prose outside JSON."
             },
             {
               role: "user",
