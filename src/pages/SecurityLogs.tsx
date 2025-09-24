@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Activity, RefreshCw, Sparkles, Filter } from "lucide-react";
 import { toast } from "sonner";
+import { Link } from "react-router";
 
 const levelOptions = ["all", "info", "warn", "error", "critical"] as const;
 type LevelOpt = typeof levelOptions[number];
@@ -87,6 +88,14 @@ export default function SecurityLogs() {
             Generate Demo Logs
           </Button>
         </div>
+      </div>
+
+      {/* Quick Links */}
+      <div className="flex flex-wrap gap-2">
+        <Button variant="outline" asChild><Link to="/dashboard/iocs">IOC Manager</Link></Button>
+        <Button variant="outline" asChild><Link to="/dashboard/analysis">AI Analysis</Link></Button>
+        <Button variant="outline" asChild><Link to="/dashboard/hunt">Threat Hunt</Link></Button>
+        <Button variant="outline" asChild><Link to="/dashboard/incidents">Incidents</Link></Button>
       </div>
 
       {/* Stats */}

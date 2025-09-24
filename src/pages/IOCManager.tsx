@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Shield, Plus, Pencil, Trash2, Eye, Filter, CheckCircle2, XCircle, Tag } from "lucide-react";
 import { Play } from "lucide-react";
 import type { Id } from "@/convex/_generated/dataModel";
+import { Link } from "react-router";
 
 // Helpers
 const sevClass = (s: string) => {
@@ -265,6 +266,14 @@ export default function IOCManager() {
             </div>
           </DialogContent>
         </Dialog>
+      </div>
+
+      {/* Quick Links */}
+      <div className="flex flex-wrap gap-2">
+        <Button variant="outline" asChild><Link to="/dashboard/logs">Security Logs</Link></Button>
+        <Button variant="outline" asChild><Link to="/dashboard/analysis">AI Analysis</Link></Button>
+        <Button variant="outline" asChild><Link to="/dashboard/hunt">Threat Hunt</Link></Button>
+        <Button variant="outline" asChild><Link to="/dashboard/incidents">Incidents</Link></Button>
       </div>
 
       {/* Stats */}

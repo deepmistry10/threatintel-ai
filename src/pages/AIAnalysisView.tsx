@@ -11,6 +11,7 @@ import { useAction, useMutation } from "convex/react";
 import { toast } from "sonner";
 import { RefreshCw, Sparkles, Filter, Play } from "lucide-react";
 import { useMemo, useState } from "react";
+import { Link } from "react-router";
 
 export default function AIAnalysisView() {
   const analyses = useQuery(api.aiAnalysis.getAnalysis, {});
@@ -117,6 +118,14 @@ export default function AIAnalysisView() {
             Generate Demo Analysis
           </Button>
         </div>
+      </div>
+
+      {/* Quick Links */}
+      <div className="flex flex-wrap gap-2">
+        <Button variant="outline" asChild><Link to="/dashboard/iocs">IOC Manager</Link></Button>
+        <Button variant="outline" asChild><Link to="/dashboard/logs">Security Logs</Link></Button>
+        <Button variant="outline" asChild><Link to="/dashboard/hunt">Threat Hunt</Link></Button>
+        <Button variant="outline" asChild><Link to="/dashboard/incidents">Incidents</Link></Button>
       </div>
 
       {/* Stats */}
