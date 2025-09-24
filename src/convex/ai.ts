@@ -82,15 +82,58 @@ export const generateAndSaveAnalysis = action({
             };
           }
 
+          // Normalize fields to match schema expectations
+          const toDetailsString = (val: any): string => {
+            if (typeof val === "string") return val;
+            if (val && typeof val === "object") {
+              const cause = (val.Cause ?? val.cause);
+              const analysisText = (val.Analysis ?? val.analysis ?? val.details ?? null);
+              let s = "";
+              if (cause) s += `Cause: ${String(cause)}`;
+              if (analysisText) s += (s ? "\n\n" : "") + String(analysisText);
+              return s || JSON.stringify(val);
+            }
+            return String(val ?? "");
+          };
+
+          const normalizeRecs = (val: any): string[] => {
+            if (Array.isArray(val)) return val.map((r) => String(r)).filter(Boolean);
+            if (typeof val === "string") {
+              return val.split(/\r?\n|;|,/).map((s) => s.trim()).filter(Boolean);
+            }
+            return [];
+          };
+
+          const normalizeSeverity = (val: any): "low" | "medium" | "high" | "critical" => {
+            const s = String(val ?? "").toLowerCase();
+            if (s === "low" || s === "medium" || s === "high" || s === "critical") return s;
+            // Map common synonyms/levels if provided
+            if (s === "moderate") return "medium";
+            if (s === "severe") return "high";
+            return "medium";
+          };
+
+          const normalizeConfidence = (val: any): number => {
+            const n = Number(val);
+            if (Number.isFinite(n)) return Math.max(0, Math.min(100, Math.round(n)));
+            return 0;
+          };
+
+          const summary: string = String(analysis.summary ?? "AI threat analysis");
+          const details: string = toDetailsString(analysis.details);
+          const recommendations: string[] = normalizeRecs(analysis.recommendations);
+          const severity = normalizeSeverity(analysis.severity);
+          const confidence = normalizeConfidence(analysis.confidence);
+
           // Successful parse/response -> return immediately
           return {
             targetType: args.targetType || "custom_analysis",
             analysisType: "ai_threat_analysis",
-            summary: analysis.summary,
-            details: analysis.details,
-            recommendations: analysis.recommendations,
-            severity: analysis.severity,
-            confidence: analysis.confidence,
+            summary,
+            details,
+            recommendations,
+            severity,
+            confidence,
           };
         } catch (innerErr: any) {
           // Network/parse error on this model; try the next

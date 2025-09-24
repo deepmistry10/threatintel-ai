@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useAction, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Shield, Plus, Pencil, Trash2, Eye, Filter, CheckCircle2, XCircle, Tag } from "lucide-react";
+import { Play } from "lucide-react";
 import type { Id } from "@/convex/_generated/dataModel";
 
 // Helpers
@@ -51,6 +52,63 @@ export default function IOCManager() {
   const createIOC = useMutation(api.iocs.createIOC);
   const updateIOC = useMutation(api.iocs.updateIOC);
   const deleteIOC = useMutation(api.iocs.deleteIOC);
+  const runAI = useAction(api.ai.generateAndSaveAnalysis);
+  const saveAnalysis = useMutation(api.aiAnalysis.saveAnalysisPublic);
+
+  // Track which IOC is being analyzed
+  const [analyzingId, setAnalyzingId] = useState<Id<"iocs"> | null>(null);
+
+  // Trigger AI analysis for an IOC
+  const onAnalyzeIOC = async (ioc: {
+    _id: Id<"iocs">;
+    type: string;
+    value: string;
+    description?: string;
+    source: string;
+    tags?: string[];
+    severity: string;
+    confidence: number;
+  }) => {
+    try {
+      setAnalyzingId(ioc._id);
+      const content = [
+        `IOC Type: ${ioc.type}`,
+        `Value: ${ioc.value}`,
+        `Severity: ${ioc.severity}`,
+        `Confidence: ${ioc.confidence}%`,
+        `Source: ${ioc.source}`,
+        `Tags: ${(ioc.tags || []).join(", ") || "none"}`,
+        `Description: ${ioc.description || "n/a"}`,
+      ].join("\n");
+
+      const a = await runAI({ content, targetType: "ioc" });
+
+      await saveAnalysis({
+        targetType: "ioc",
+        analysisType: "ai_threat_analysis",
+        summary: a.summary,
+        details: a.details,
+        recommendations: a.recommendations,
+        severity: a.severity,
+        confidence: a.confidence,
+        metadata: { model: "openrouter" },
+      });
+
+      toast.success("AI analysis completed and saved");
+    } catch (e) {
+      const msg =
+        (e as any)?.data?.message ||
+        (e as any)?.message ||
+        "AI analysis failed";
+      toast.error(
+        msg.includes("OpenRouter API key not configured")
+          ? "AI analysis failed: OpenRouter API key not configured. Add OPENROUTER_API_KEY in Integrations."
+          : `AI analysis failed: ${msg}`
+      );
+    } finally {
+      setAnalyzingId(null);
+    }
+  };
 
   // Create dialog state
   const [openCreate, setOpenCreate] = useState(false);
@@ -337,6 +395,15 @@ export default function IOCManager() {
                     onClick={() => toast.info("Detail view coming soon")}
                   >
                     <Eye className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    title="Run AI Analysis"
+                    onClick={() => onAnalyzeIOC(ioc)}
+                    disabled={analyzingId === ioc._id}
+                  >
+                    <Play className="h-4 w-4" />
                   </Button>
                   <Button
                     size="icon"
