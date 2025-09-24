@@ -9,6 +9,8 @@ export const getLogs = query({
     endTime: v.optional(v.number()),
     minAnomalyScore: v.optional(v.number()),
     limit: v.optional(v.number()),
+    // Allow client to pass a dummy key to force refetches
+    _k: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     let q = ctx.db.query("securityLogs");
