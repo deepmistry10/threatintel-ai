@@ -76,6 +76,7 @@ export const createIOC = mutation({
     source: v.string(),
     tags: v.array(v.string()),
     confidence: v.number(),
+    mitreTechniques: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
     const user = await getCurrentUser(ctx);
@@ -97,6 +98,7 @@ export const createIOC = mutation({
       lastSeen: now,
       confidence: args.confidence,
       createdBy: user._id,
+      mitreTechniques: args.mitreTechniques,
     });
   },
 });
@@ -110,6 +112,7 @@ export const updateIOC = mutation({
       tags: v.optional(v.array(v.string())),
       isActive: v.optional(v.boolean()),
       confidence: v.optional(v.number()),
+      mitreTechniques: v.optional(v.array(v.string())),
     }),
   },
   handler: async (ctx, args) => {
@@ -129,6 +132,7 @@ export const updateIOC = mutation({
     if (args.updates.tags) updates.tags = args.updates.tags;
     if (args.updates.isActive !== undefined) updates.isActive = args.updates.isActive;
     if (args.updates.confidence !== undefined) updates.confidence = args.updates.confidence;
+    if (args.updates.mitreTechniques !== undefined) updates.mitreTechniques = args.updates.mitreTechniques;
 
     if (args.updates.isActive !== undefined) {
       updates.lastSeen = Date.now();

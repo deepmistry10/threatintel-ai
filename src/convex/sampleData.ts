@@ -3,7 +3,7 @@ import { mutation } from "./_generated/server";
 export const loadSampleData = mutation({
   args: {},
   handler: async (ctx) => {
-    // Sample IOCs
+    // Sample IOCs with MITRE mappings
     const sampleIOCs = [
       {
         type: "ip" as const,
@@ -17,6 +17,7 @@ export const loadSampleData = mutation({
         lastSeen: Date.now() - 3600000,
         confidence: 95,
         createdBy: "system" as any,
+        mitreTechniques: ["T1071"], // Application Layer Protocol (C2)
       },
       {
         type: "domain" as const,
@@ -30,6 +31,7 @@ export const loadSampleData = mutation({
         lastSeen: Date.now() - 1800000,
         confidence: 98,
         createdBy: "system" as any,
+        mitreTechniques: ["T1566", "T1110"], // Phishing, Brute Force
       },
       {
         type: "hash" as const,
@@ -43,6 +45,7 @@ export const loadSampleData = mutation({
         lastSeen: Date.now() - 7200000,
         confidence: 87,
         createdBy: "system" as any,
+        mitreTechniques: ["T1566", "T1059"], // Phishing, Command and Scripting Interpreter
       },
     ];
 
@@ -84,7 +87,7 @@ export const loadSampleData = mutation({
       },
     ];
 
-    // Sample AI Analyses
+    // Sample AI Analyses with MITRE mappings
     const sampleAnalyses = [
       {
         targetType: "network_traffic",
@@ -103,6 +106,7 @@ export const loadSampleData = mutation({
           processingTime: 1250,
           dataPoints: 15000,
         },
+        mitreTechniques: ["T1048", "T1071"], // Exfiltration Over Alternative Protocol, Application Layer Protocol
       },
       {
         targetType: "user_behavior",
@@ -121,6 +125,7 @@ export const loadSampleData = mutation({
           processingTime: 890,
           dataPoints: 2500,
         },
+        mitreTechniques: ["T1110", "T1190"], // Brute Force, Exploit Public-Facing Application
       },
     ];
 

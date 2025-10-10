@@ -137,6 +137,7 @@ export const saveAnalysisPublic = mutation({
       processingTime: v.optional(v.number()),
       dataPoints: v.optional(v.number()),
     })),
+    mitreTechniques: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
     const id = await ctx.db.insert("aiAnalysis", {
@@ -149,6 +150,7 @@ export const saveAnalysisPublic = mutation({
       confidence: args.confidence,
       metadata: args.metadata,
       isDemo: args.isDemo,
+      mitreTechniques: args.mitreTechniques,
     });
     return id;
   },
