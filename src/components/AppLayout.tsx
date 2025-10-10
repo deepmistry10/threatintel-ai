@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Shield, BarChart3, Search, Brain, Settings, LogOut, Menu, X, AlertTriangle } from "lucide-react";
+import { Shield, BarChart3, Search, Brain, Settings, LogOut, Menu, X, AlertTriangle, Rss, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useNavigate, useLocation } from "react-router";
@@ -23,6 +23,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
     { name: "Security Logs", href: "/dashboard/logs", icon: Search },
     { name: "AI Analysis", href: "/dashboard/analysis", icon: Brain },
     { name: "Threat Hunt", href: "/dashboard/hunt", icon: Search },
+    { name: "Threat Feeds", href: "/dashboard/feeds", icon: Rss },
+    { name: "MITRE Coverage", href: "/dashboard/mitre", icon: Target },
   ];
 
   useEffect(() => {

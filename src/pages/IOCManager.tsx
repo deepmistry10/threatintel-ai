@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Shield, Plus, Pencil, Trash2, Eye, Filter, CheckCircle2, XCircle, Tag } from "lucide-react";
+import { Shield, Plus, Pencil, Trash2, Eye, Filter, CheckCircle2, XCircle, Tag, Upload } from "lucide-react";
 import { Play } from "lucide-react";
 import type { Id } from "@/convex/_generated/dataModel";
 import { Link } from "react-router";
@@ -55,9 +55,15 @@ export default function IOCManager() {
   const deleteIOC = useMutation(api.iocs.deleteIOC);
   const runAI = useAction(api.ai.generateAndSaveAnalysis);
   const saveAnalysis = useMutation(api.aiAnalysis.saveAnalysisPublic);
+  const bulkImport = useMutation(api.bulkImport.bulkCreateIOCs);
 
   // Track which IOC is being analyzed
   const [analyzingId, setAnalyzingId] = useState<Id<"iocs"> | null>(null);
+
+  // Bulk import state
+  const [openBulkImport, setOpenBulkImport] = useState(false);
+  const [bulkData, setBulkData] = useState("");
+  const [importing, setImporting] = useState(false);
 
   // Trigger AI analysis for an IOC
   const onAnalyzeIOC = async (ioc: {
@@ -202,6 +208,35 @@ export default function IOCManager() {
     }
   };
 
+  const onBulkImport = async () => {
+    try {
+      setImporting(true);
+      const lines = bulkData.trim().split("\n").filter(Boolean);
+      const iocs = lines.map(line => {
+        const parts = line.split(",").map(p => p.trim());
+        return {
+          type: parts[0] || "ip",
+          value: parts[1] || "",
+          severity: parts[2] || "medium",
+          description: parts[3] || "",
+          source: parts[4] || "bulk_import",
+          tags: parts[5] ? parts[5].split(";").map(t => t.trim()) : [],
+          confidence: Number(parts[6]) || 75,
+        };
+      });
+
+      const result = await bulkImport({ iocs, fileType: "csv" });
+      toast.success(`Imported ${result.successCount} IOCs (${result.failureCount} failed)`);
+      setOpenBulkImport(false);
+      setBulkData("");
+    } catch (e) {
+      console.error(e);
+      toast.error("Bulk import failed");
+    } finally {
+      setImporting(false);
+    }
+  };
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -210,62 +245,100 @@ export default function IOCManager() {
           <Shield className="h-6 w-6 text-neon-green" />
           <h1 className="text-2xl font-bold text-neon-green">IOC Management</h1>
         </div>
-        <Dialog open={openCreate} onOpenChange={setOpenCreate}>
-          <DialogTrigger asChild>
-            <Button className="glow-green">
-              <Plus className="mr-2 h-4 w-4" />
-              Add IOC
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-xl">
-            <DialogHeader>
-              <DialogTitle>Create IOC</DialogTitle>
-            </DialogHeader>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs">Type</label>
-                <Select value={createForm.type} onValueChange={(v) => setCreateForm(f => ({ ...f, type: v as IocType }))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {types.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+        <div className="flex gap-2">
+          <Dialog open={openBulkImport} onOpenChange={setOpenBulkImport}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="border-neon-blue text-neon-blue">
+                <Upload className="mr-2 h-4 w-4" />
+                Bulk Import
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Bulk Import IOCs</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-3">
+                <p className="text-xs text-muted-foreground">
+                  Format: type,value,severity,description,source,tags(semicolon-separated),confidence
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Example: ip,192.168.1.100,high,Malicious IP,threat_feed,malware;c2,85
+                </p>
+                <Textarea
+                  rows={10}
+                  value={bulkData}
+                  onChange={(e) => setBulkData(e.target.value)}
+                  placeholder="ip,192.168.1.100,high,Malicious IP,threat_feed,malware;c2,85&#10;domain,evil.com,critical,C2 domain,manual,phishing,90"
+                  className="font-mono text-xs"
+                />
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setOpenBulkImport(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={onBulkImport} disabled={importing || !bulkData.trim()}>
+                    {importing ? "Importing..." : "Import"}
+                  </Button>
+                </div>
               </div>
-              <div>
-                <label className="text-xs">Severity</label>
-                <Select value={createForm.severity} onValueChange={(v) => setCreateForm(f => ({ ...f, severity: v as Severity }))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {severities.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+            </DialogContent>
+          </Dialog>
+          <Dialog open={openCreate} onOpenChange={setOpenCreate}>
+            <DialogTrigger asChild>
+              <Button className="glow-green">
+                <Plus className="mr-2 h-4 w-4" />
+                Add IOC
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-xl">
+              <DialogHeader>
+                <DialogTitle>Create IOC</DialogTitle>
+              </DialogHeader>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs">Type</label>
+                  <Select value={createForm.type} onValueChange={(v) => setCreateForm(f => ({ ...f, type: v as IocType }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {types.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-xs">Severity</label>
+                  <Select value={createForm.severity} onValueChange={(v) => setCreateForm(f => ({ ...f, severity: v as Severity }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {severities.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-xs">Value</label>
+                  <Input value={createForm.value} onChange={(e) => setCreateForm(f => ({ ...f, value: e.target.value }))} placeholder="e.g., 192.168.1.100 or malicious.com" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-xs">Description</label>
+                  <Textarea rows={3} value={createForm.description} onChange={(e) => setCreateForm(f => ({ ...f, description: e.target.value }))} placeholder="Short context" />
+                </div>
+                <div>
+                  <label className="text-xs">Source</label>
+                  <Input value={createForm.source} onChange={(e) => setCreateForm(f => ({ ...f, source: e.target.value }))} placeholder="manual, feed name..." />
+                </div>
+                <div>
+                  <label className="text-xs">Confidence (%)</label>
+                  <Input type="number" min={0} max={100} value={createForm.confidence} onChange={(e) => setCreateForm(f => ({ ...f, confidence: Number(e.target.value) }))} />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-xs flex items-center gap-1"><Tag className="h-3 w-3" /> Tags (comma separated)</label>
+                  <Input value={createForm.tags} onChange={(e) => setCreateForm(f => ({ ...f, tags: e.target.value }))} placeholder="phishing, c2, malware" />
+                </div>
               </div>
-              <div className="md:col-span-2">
-                <label className="text-xs">Value</label>
-                <Input value={createForm.value} onChange={(e) => setCreateForm(f => ({ ...f, value: e.target.value }))} placeholder="e.g., 192.168.1.100 or malicious.com" />
+              <div className="flex justify-end">
+                <Button onClick={onCreate}>Create</Button>
               </div>
-              <div className="md:col-span-2">
-                <label className="text-xs">Description</label>
-                <Textarea rows={3} value={createForm.description} onChange={(e) => setCreateForm(f => ({ ...f, description: e.target.value }))} placeholder="Short context" />
-              </div>
-              <div>
-                <label className="text-xs">Source</label>
-                <Input value={createForm.source} onChange={(e) => setCreateForm(f => ({ ...f, source: e.target.value }))} placeholder="manual, feed name..." />
-              </div>
-              <div>
-                <label className="text-xs">Confidence (%)</label>
-                <Input type="number" min={0} max={100} value={createForm.confidence} onChange={(e) => setCreateForm(f => ({ ...f, confidence: Number(e.target.value) }))} />
-              </div>
-              <div className="md:col-span-2">
-                <label className="text-xs flex items-center gap-1"><Tag className="h-3 w-3" /> Tags (comma separated)</label>
-                <Input value={createForm.tags} onChange={(e) => setCreateForm(f => ({ ...f, tags: e.target.value }))} placeholder="phishing, c2, malware" />
-              </div>
-            </div>
-            <div className="flex justify-end">
-              <Button onClick={onCreate}>Create</Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Quick Links */}
