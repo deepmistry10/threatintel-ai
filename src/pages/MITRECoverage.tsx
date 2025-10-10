@@ -11,11 +11,16 @@ import { useState } from "react";
 
 export default function MITRECoverage() {
   const [tacticFilter, setTacticFilter] = useState<string>("all");
+  const [expandedTechnique, setExpandedTechnique] = useState<string | null>(null);
   
   const techniques = useQuery(api.mitre.getTechniques, { tactic: tacticFilter });
   const tactics = useQuery(api.mitre.getTactics, {});
   const stats = useQuery(api.mitre.getCoverageStats, {});
   const seedTechniques = useMutation(api.mitre.seedMitreTechniques);
+  
+  // Fetch all IOCs and analyses to show which ones map to techniques
+  const allIOCs = useQuery(api.iocs.getIOCs, { limit: 1000 });
+  const allAnalyses = useQuery(api.aiAnalysis.getAnalysis, { limit: 1000 });
 
   const onSeedData = async () => {
     try {
@@ -141,39 +146,99 @@ export default function MITRECoverage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {techniques?.map((tech) => (
-              <div
-                key={tech._id}
-                className="p-3 rounded-lg bg-muted/50 border border-border/50 hover:border-neon-blue/50 transition-all"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Badge variant="outline" className="font-mono">
-                        {tech.techniqueId}
-                      </Badge>
-                      <span className="text-sm font-semibold">{tech.name}</span>
-                      <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">
-                        {tech.tactic}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground">{tech.description}</p>
-                    <div className="flex gap-1 mt-2 flex-wrap">
-                      {tech.platforms.map((platform) => (
-                        <Badge key={platform} variant="secondary" className="text-[10px]">
-                          {platform}
+            {techniques?.map((tech) => {
+              // Find IOCs and analyses that map to this technique
+              const relatedIOCs = allIOCs?.filter(ioc => 
+                ioc.mitreTechniques?.includes(tech.techniqueId)
+              ) || [];
+              const relatedAnalyses = allAnalyses?.filter(analysis => 
+                analysis.mitreTechniques?.includes(tech.techniqueId)
+              ) || [];
+              const isDetected = relatedIOCs.length > 0 || relatedAnalyses.length > 0;
+              const isExpanded = expandedTechnique === tech.techniqueId;
+              
+              return (
+                <div
+                  key={tech._id}
+                  className={`p-3 rounded-lg border transition-all ${
+                    isDetected 
+                      ? 'bg-green-500/10 border-green-500/50 hover:border-green-500/70' 
+                      : 'bg-muted/50 border-border/50 hover:border-neon-blue/50'
+                  }`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <Badge variant="outline" className="font-mono">
+                          {tech.techniqueId}
                         </Badge>
-                      ))}
+                        <span className="text-sm font-semibold">{tech.name}</span>
+                        <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">
+                          {tech.tactic}
+                        </Badge>
+                        {isDetected && (
+                          <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                            ✓ Detected
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground">{tech.description}</p>
+                      <div className="flex gap-1 mt-2 flex-wrap">
+                        {tech.platforms.map((platform) => (
+                          <Badge key={platform} variant="secondary" className="text-[10px]">
+                            {platform}
+                          </Badge>
+                        ))}
+                      </div>
+                      
+                      {/* Show detection details */}
+                      {isDetected && (
+                        <div className="mt-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setExpandedTechnique(isExpanded ? null : tech.techniqueId)}
+                            className="text-xs h-6 px-2"
+                          >
+                            {isExpanded ? '▼' : '▶'} {relatedIOCs.length} IOCs, {relatedAnalyses.length} Analyses
+                          </Button>
+                          
+                          {isExpanded && (
+                            <div className="mt-2 space-y-2 pl-4 border-l-2 border-green-500/30">
+                              {relatedIOCs.length > 0 && (
+                                <div>
+                                  <p className="text-xs font-semibold text-green-400 mb-1">Related IOCs:</p>
+                                  {relatedIOCs.map(ioc => (
+                                    <div key={ioc._id} className="text-xs text-muted-foreground">
+                                      • {ioc.type}: {ioc.value} ({ioc.severity})
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                              {relatedAnalyses.length > 0 && (
+                                <div>
+                                  <p className="text-xs font-semibold text-blue-400 mb-1">Related Analyses:</p>
+                                  {relatedAnalyses.map(analysis => (
+                                    <div key={analysis._id} className="text-xs text-muted-foreground">
+                                      • {analysis.summary.substring(0, 60)}...
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
+                    <Button size="sm" variant="ghost" asChild>
+                      <a href={tech.url} target="_blank" rel="noopener noreferrer">
+                        View
+                      </a>
+                    </Button>
                   </div>
-                  <Button size="sm" variant="ghost" asChild>
-                    <a href={tech.url} target="_blank" rel="noopener noreferrer">
-                      View
-                    </a>
-                  </Button>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             {(!techniques || techniques.length === 0) && (
               <p className="text-sm text-muted-foreground text-center py-8">
                 No techniques found. Click "Load Sample Techniques" to populate the database.
