@@ -4,9 +4,10 @@ import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, AlertTriangle, CheckCircle2, Lightbulb, TrendingUp, Shield, Activity } from "lucide-react";
+import { Search, AlertTriangle, CheckCircle2, Lightbulb, TrendingUp, Shield, Activity, Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { toast } from "sonner";
 
 export default function ThreatHunt() {
   const [keyword, setKeyword] = useState("");
@@ -59,6 +60,61 @@ export default function ThreatHunt() {
   };
 
   // Calculate statistics for visual representation
+  // Export to CSV function
+  const exportToCSV = () => {
+    if (!results || results.length === 0) {
+      toast.error("No data to export");
+      return;
+    }
+
+    const csvRows = [];
+    // Header
+    csvRows.push([
+      "Type",
+      "Title",
+      "Description",
+      "Severity",
+      "Confidence",
+      "Source",
+      "Timestamp",
+      "Anomaly Score",
+      "AI Recommendations Count",
+      "AI Recommendations"
+    ].join(","));
+
+    // Data rows
+    results.forEach(r => {
+      const recommendations = getRecommendationsForResult(r);
+      const recsText = recommendations.map(rec => rec.replace(/,/g, ";")).join(" | ");
+      
+      csvRows.push([
+        r.type,
+        `"${(r.title || "").replace(/"/g, '""')}"`,
+        `"${(r.description || "").replace(/"/g, '""')}"`,
+        r.severity,
+        r.confidence || "",
+        r.source || "",
+        new Date(r.timestamp).toISOString(),
+        r.anomalyScore !== null ? r.anomalyScore : "",
+        recommendations.length,
+        `"${recsText.replace(/"/g, '""')}"`
+      ].join(","));
+    });
+
+    const csvContent = csvRows.join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `threat_hunt_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast.success("CSV exported successfully");
+  };
+
   const stats = useMemo(() => {
     if (!results) return null;
     
@@ -95,9 +151,19 @@ export default function ThreatHunt() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center space-x-2">
-        <Search className="h-6 w-6 text-neon-blue" />
-        <h1 className="text-2xl font-bold text-neon-green">Threat Hunt</h1>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <Search className="h-6 w-6 text-neon-blue" />
+          <h1 className="text-2xl font-bold text-neon-green">Threat Hunt</h1>
+        </div>
+        <Button 
+          className="glow-green" 
+          onClick={exportToCSV}
+          disabled={!results || results.length === 0}
+        >
+          <Download className="mr-2 h-4 w-4" />
+          Export to CSV
+        </Button>
       </div>
 
       <Card className="border-glow bg-card/50 backdrop-blur-sm">
