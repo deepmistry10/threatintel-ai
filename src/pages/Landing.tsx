@@ -110,7 +110,7 @@ export default function Landing() {
             <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-neon-green via-neon-pink to-neon-blue bg-clip-text text-transparent">
               Defend Against
               <br />
-              <span className="text-neon-green glow-green">Cyber Threats</span>
+              <span className="text-neon-green">Cyber Threats</span>
             </h1>
             
             <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
