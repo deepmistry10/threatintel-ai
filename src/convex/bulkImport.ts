@@ -31,8 +31,27 @@ export const bulkCreateIOCs = mutation({
     fileType: v.union(v.literal("csv"), v.literal("json")),
   },
   handler: async (ctx, args) => {
-    const user = await getCurrentUser(ctx);
-    if (!user) throw new Error("Authentication required");
+    let user = await getCurrentUser(ctx);
+    
+    // If no authenticated user, create or use system user
+    if (!user) {
+      const systemUser = await ctx.db
+        .query("users")
+        .filter((q) => q.eq(q.field("email"), "system@threatintel.ai"))
+        .first();
+      
+      if (systemUser) {
+        user = systemUser;
+      } else {
+        const userId = await ctx.db.insert("users", {
+          email: "system@threatintel.ai",
+          name: "System",
+          isAnonymous: true,
+        });
+        user = await ctx.db.get(userId);
+        if (!user) throw new Error("Failed to create system user");
+      }
+    }
     
     const batchId = `import_${Date.now()}_${user._id}`;
     const now = Date.now();
