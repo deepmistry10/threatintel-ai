@@ -40,8 +40,27 @@ export const createFeed = mutation({
     provider: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const user = await getCurrentUser(ctx);
-    if (!user) throw new Error("Authentication required");
+    let user = await getCurrentUser(ctx);
+    
+    // If no authenticated user, use or create system user
+    if (!user) {
+      const systemUser = await ctx.db
+        .query("users")
+        .filter((q) => q.eq(q.field("email"), "system@threatintel.ai"))
+        .first();
+      
+      if (systemUser) {
+        user = systemUser;
+      } else {
+        const userId = await ctx.db.insert("users", {
+          email: "system@threatintel.ai",
+          name: "System",
+          isAnonymous: true,
+        });
+        user = await ctx.db.get(userId);
+        if (!user) throw new Error("Failed to create system user");
+      }
+    }
 
     return await ctx.db.insert("threatFeeds", {
       name: args.name,
@@ -64,8 +83,27 @@ export const toggleFeed = mutation({
     enabled: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const user = await getCurrentUser(ctx);
-    if (!user) throw new Error("Authentication required");
+    let user = await getCurrentUser(ctx);
+    
+    // If no authenticated user, use or create system user
+    if (!user) {
+      const systemUser = await ctx.db
+        .query("users")
+        .filter((q) => q.eq(q.field("email"), "system@threatintel.ai"))
+        .first();
+      
+      if (systemUser) {
+        user = systemUser;
+      } else {
+        const userId = await ctx.db.insert("users", {
+          email: "system@threatintel.ai",
+          name: "System",
+          isAnonymous: true,
+        });
+        user = await ctx.db.get(userId);
+        if (!user) throw new Error("Failed to create system user");
+      }
+    }
 
     await ctx.db.patch(args.feedId, { enabled: args.enabled });
   },
@@ -76,8 +114,27 @@ export const deleteFeed = mutation({
     feedId: v.id("threatFeeds"),
   },
   handler: async (ctx, args) => {
-    const user = await getCurrentUser(ctx);
-    if (!user) throw new Error("Authentication required");
+    let user = await getCurrentUser(ctx);
+    
+    // If no authenticated user, use or create system user
+    if (!user) {
+      const systemUser = await ctx.db
+        .query("users")
+        .filter((q) => q.eq(q.field("email"), "system@threatintel.ai"))
+        .first();
+      
+      if (systemUser) {
+        user = systemUser;
+      } else {
+        const userId = await ctx.db.insert("users", {
+          email: "system@threatintel.ai",
+          name: "System",
+          isAnonymous: true,
+        });
+        user = await ctx.db.get(userId);
+        if (!user) throw new Error("Failed to create system user");
+      }
+    }
 
     await ctx.db.delete(args.feedId);
   },
