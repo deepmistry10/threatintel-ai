@@ -76,7 +76,7 @@ export default function Dashboard() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <Card className="border-glow bg-card/50 backdrop-blur-sm">
+            <Card className="bg-card/50 backdrop-blur-sm">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Active Threats</CardTitle>
                 <AlertTriangle className="h-4 w-4 text-neon-pink glow-pink" />
@@ -97,7 +97,7 @@ export default function Dashboard() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <Card className="border-glow bg-card/50 backdrop-blur-sm">
+            <Card className="bg-card/50 backdrop-blur-sm">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Log Events (24h)</CardTitle>
                 <Activity className="h-4 w-4 text-neon-blue glow-blue" />
@@ -118,7 +118,7 @@ export default function Dashboard() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
           >
-            <Card className="border-glow bg-card/50 backdrop-blur-sm">
+            <Card className="bg-card/50 backdrop-blur-sm">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">AI Analyses</CardTitle>
                 <Brain className="h-4 w-4 text-neon-green glow-green" />
@@ -139,7 +139,7 @@ export default function Dashboard() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            <Card className="border-glow bg-card/50 backdrop-blur-sm">
+            <Card className="bg-card/50 backdrop-blur-sm">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Recent Threats</CardTitle>
                 <TrendingUp className="h-4 w-4 text-yellow-400" />
@@ -167,7 +167,7 @@ export default function Dashboard() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Button
               onClick={() => navigate("/dashboard/iocs")}
-              className="h-20 flex flex-col items-center justify-center space-y-2 bg-primary/20 hover:bg-primary/30 border border-primary/30 glow-green"
+              className="h-20 flex flex-col items-center justify-center space-y-2 bg-primary/20 hover:bg-primary/30 border border-primary/30"
             >
               <Shield className="h-6 w-6" />
               <span className="text-sm">Manage IOCs</span>
@@ -175,7 +175,7 @@ export default function Dashboard() {
             
             <Button
               onClick={() => navigate("/dashboard/logs")}
-              className="h-20 flex flex-col items-center justify-center space-y-2 bg-accent/20 hover:bg-accent/30 border border-accent/30 glow-pink"
+              className="h-20 flex flex-col items-center justify-center space-y-2 bg-accent/20 hover:bg-accent/30 border border-accent/30"
             >
               <Activity className="h-6 w-6" />
               <span className="text-sm">View Logs</span>
@@ -183,7 +183,7 @@ export default function Dashboard() {
             
             <Button
               onClick={() => navigate("/dashboard/analysis")}
-              className="h-20 flex flex-col items-center justify-center space-y-2 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 glow-blue"
+              className="h-20 flex flex-col items-center justify-center space-y-2 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30"
             >
               <Brain className="h-6 w-6" />
               <span className="text-sm">AI Analysis</span>
@@ -208,7 +208,7 @@ export default function Dashboard() {
           transition={{ duration: 0.5, delay: 0.6 }}
           className="h-full"
         >
-          <Card className="border-glow bg-card/50 backdrop-blur-sm h-full flex flex-col">
+          <Card className="bg-card/50 backdrop-blur-sm h-full flex flex-col">
             <CardHeader className="flex-shrink-0">
               <CardTitle className="flex items-center space-x-2">
                 <Eye className="h-5 w-5 text-neon-green" />
@@ -264,7 +264,7 @@ export default function Dashboard() {
       </div>
 
       {/* Decorative bottom panel */}
-      <div className="flex-shrink-0 h-16 bg-gradient-to-r from-primary/10 via-accent/10 to-blue-500/10 border-t border-glow" />
+      <div className="flex-shrink-0 h-16 bg-gradient-to-r from-primary/10 via-accent/10 to-blue-500/10 border-t border-border" />
     </div>
   );
 }

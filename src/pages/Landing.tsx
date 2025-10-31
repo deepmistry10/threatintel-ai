@@ -70,7 +70,7 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-gradient-cyber dark">
       {/* Navigation */}
-      <nav className="border-b border-glow bg-card/50 backdrop-blur-sm">
+      <nav className="border-b border-border bg-card/50 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <motion.div 
@@ -84,7 +84,7 @@ export default function Landing() {
             
             <Button 
               onClick={handleGetStarted}
-              className="glow-green bg-primary hover:bg-primary/80"
+              className="bg-primary hover:bg-primary/80"
               disabled={isLoading}
             >
               {isAuthenticated ? "Dashboard" : "Get Started"}
@@ -102,7 +102,7 @@ export default function Landing() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <Badge className="mb-6 bg-primary/20 text-neon-green border-primary/30 glow-green">
+            <Badge className="mb-6 bg-primary/20 text-neon-green border-primary/30">
               <Zap className="w-3 h-3 mr-1" />
               AI-Powered Threat Intelligence
             </Badge>
@@ -123,7 +123,7 @@ export default function Landing() {
               <Button 
                 size="lg" 
                 onClick={handleGetStarted}
-                className="glow-green bg-primary hover:bg-primary/80 text-lg px-8"
+                className="bg-primary hover:bg-primary/80 text-lg px-8"
                 disabled={isLoading}
               >
                 {isAuthenticated ? "Go to Dashboard" : "Start Free Trial"}
@@ -132,7 +132,7 @@ export default function Landing() {
               
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button size="lg" variant="outline" className="border-glow text-lg px-8">
+                  <Button size="lg" variant="outline" className="text-lg px-8">
                     <Play className="mr-2 h-5 w-5" />
                     Watch Demo
                   </Button>
@@ -177,7 +177,7 @@ export default function Landing() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 whileHover={{ scale: 1.05 }}
               >
-                <Card className="border-glow bg-card/50 backdrop-blur-sm h-full">
+                <Card className="bg-card/50 backdrop-blur-sm h-full">
                   <CardHeader>
                     <feature.icon className={`h-12 w-12 ${feature.color} mb-4`} />
                     <CardTitle className="text-xl">{feature.title}</CardTitle>
@@ -213,7 +213,7 @@ export default function Landing() {
             </motion.div>
 
             <div className="grid md:grid-cols-4 gap-8 mb-12">
-              <Card className="border-glow bg-card/50 backdrop-blur-sm text-center">
+              <Card className="bg-card/50 backdrop-blur-sm text-center">
                 <CardContent className="pt-6">
                   <div className="text-3xl font-bold text-neon-green glow-green">
                     {dashboardMetrics.activeThreats}
@@ -222,27 +222,27 @@ export default function Landing() {
                 </CardContent>
               </Card>
               
-              <Card className="border-glow bg-card/50 backdrop-blur-sm text-center">
+              <Card className="bg-card/50 backdrop-blur-sm text-center">
                 <CardContent className="pt-6">
-                  <div className="text-3xl font-bold text-neon-pink glow-pink">
+                  <div className="text-3xl font-bold text-neon-pink">
                     {dashboardMetrics.logEvents}
                   </div>
                   <p className="text-muted-foreground">Log Events (24h)</p>
                 </CardContent>
               </Card>
               
-              <Card className="border-glow bg-card/50 backdrop-blur-sm text-center">
+              <Card className="bg-card/50 backdrop-blur-sm text-center">
                 <CardContent className="pt-6">
-                  <div className="text-3xl font-bold text-neon-blue glow-blue">
+                  <div className="text-3xl font-bold text-neon-blue">
                     {dashboardMetrics.aiAnalyses}
                   </div>
                   <p className="text-muted-foreground">AI Analyses</p>
                 </CardContent>
               </Card>
               
-              <Card className="border-glow bg-card/50 backdrop-blur-sm text-center">
+              <Card className="bg-card/50 backdrop-blur-sm text-center">
                 <CardContent className="pt-6">
-                  <div className="text-3xl font-bold text-neon-green glow-green">
+                  <div className="text-3xl font-bold text-neon-green">
                     {dashboardMetrics.recentThreats}
                   </div>
                   <p className="text-muted-foreground">Recent Threats</p>
@@ -254,7 +254,7 @@ export default function Landing() {
               <Button 
                 onClick={handleLoadSampleData}
                 disabled={isLoadingData}
-                className="glow-pink bg-accent hover:bg-accent/80"
+                className="bg-accent hover:bg-accent/80"
               >
                 {isLoadingData ? (
                   <>
@@ -292,7 +292,7 @@ export default function Landing() {
               <Button 
                 size="lg" 
                 onClick={handleGetStarted}
-                className="glow-green bg-primary hover:bg-primary/80 text-lg px-8"
+                className="bg-primary hover:bg-primary/80 text-lg px-8"
               >
                 <Shield className="mr-2 h-5 w-5" />
                 Get Started Now
@@ -301,7 +301,7 @@ export default function Landing() {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="border-glow text-lg px-8"
+                className="text-lg px-8"
                 onClick={() => window.open("mailto:sales@threatintel.com", "_blank")}
               >
                 <Users className="mr-2 h-5 w-5" />
@@ -313,7 +313,7 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-glow bg-card/50 backdrop-blur-sm py-8">
+      <footer className="border-t border-border bg-card/50 backdrop-blur-sm py-8">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Shield className="h-6 w-6 text-neon-green" />
