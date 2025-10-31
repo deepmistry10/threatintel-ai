@@ -116,9 +116,26 @@ export const updateIOC = mutation({
     }),
   },
   handler: async (ctx, args) => {
-    const user = await getCurrentUser(ctx);
+    let user = await getCurrentUser(ctx);
+    
+    // If no authenticated user, use or create system user for status updates
     if (!user) {
-      throw new Error("Authentication required");
+      const systemUser = await ctx.db
+        .query("users")
+        .filter((q) => q.eq(q.field("email"), "system@threatintel.ai"))
+        .first();
+      
+      if (systemUser) {
+        user = systemUser;
+      } else {
+        const userId = await ctx.db.insert("users", {
+          email: "system@threatintel.ai",
+          name: "System",
+          isAnonymous: true,
+        });
+        user = await ctx.db.get(userId);
+        if (!user) throw new Error("Failed to create system user");
+      }
     }
 
     const ioc = await ctx.db.get(args.id);
