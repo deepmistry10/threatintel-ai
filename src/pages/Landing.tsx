@@ -215,7 +215,7 @@ export default function Landing() {
             <div className="grid md:grid-cols-4 gap-8 mb-12">
               <Card className="bg-card/50 backdrop-blur-sm text-center">
                 <CardContent className="pt-6">
-                  <div className="text-3xl font-bold text-neon-green glow-green">
+                  <div className="text-3xl font-bold text-neon-green">
                     {dashboardMetrics.activeThreats}
                   </div>
                   <p className="text-muted-foreground">Active Threats</p>

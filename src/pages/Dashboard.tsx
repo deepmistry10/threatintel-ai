@@ -82,7 +82,7 @@ export default function Dashboard() {
                 <AlertTriangle className="h-4 w-4 text-neon-pink glow-pink" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-neon-pink glow-pink">
+                <div className="text-2xl font-bold text-neon-pink">
                   {metrics?.activeThreats ?? 0}
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -103,7 +103,7 @@ export default function Dashboard() {
                 <Activity className="h-4 w-4 text-neon-blue glow-blue" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-neon-blue glow-blue">
+                <div className="text-2xl font-bold text-neon-blue">
                   {metrics?.logEvents ?? 0}
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -124,7 +124,7 @@ export default function Dashboard() {
                 <Brain className="h-4 w-4 text-neon-green glow-green" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-neon-green glow-green">
+                <div className="text-2xl font-bold text-neon-green">
                   {metrics?.aiAnalyses ?? 0}
                 </div>
                 <p className="text-xs text-muted-foreground">
