@@ -155,3 +155,10 @@ export const saveAnalysisPublic = mutation({
     return id;
   },
 });
+
+export const deleteAnalysis = mutation({
+  args: { id: v.id("aiAnalysis") },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id);
+  },
+});

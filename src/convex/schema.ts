@@ -130,24 +130,24 @@ const schema = defineSchema(
     // Security Logs
     securityLogs: defineTable({
       source: v.string(),
-      level: logLevelValidator,
+      level: v.string(),
       message: v.string(),
       timestamp: v.number(),
-      sourceIp: v.optional(v.string()),
-      userId: v.optional(v.id("users")),
-      metadata: v.optional(v.object({
-        userAgent: v.optional(v.string()),
-        endpoint: v.optional(v.string()),
-        method: v.optional(v.string()),
-        statusCode: v.optional(v.number()),
-      })),
-      anomalyScore: v.number(), // 0-100
-      isDemo: v.optional(v.boolean()),
+      anomalyScore: v.number(),
+      metadata: v.optional(
+        v.object({
+          sourceIp: v.optional(v.string()),
+          endpoint: v.optional(v.string()),
+          method: v.optional(v.string()),
+          statusCode: v.optional(v.number()),
+          details: v.optional(v.string()), // Added details field
+        })
+      ),
     })
       .index("by_source", ["source"])
       .index("by_level", ["level"])
       .index("by_timestamp", ["timestamp"])
-      .index("by_anomaly_score", ["anomalyScore"]),
+      .index("by_anomaly", ["anomalyScore"]),
 
     // AI Analysis Results
     aiAnalysis: defineTable({

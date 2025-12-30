@@ -9,23 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useAction, useMutation } from "convex/react";
 import { toast } from "sonner";
-import { RefreshCw, Sparkles, Filter, Play } from "lucide-react";
+import { RefreshCw, Sparkles, Filter, Play, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
 
 export default function AIAnalysisView() {
-  const analyses = useQuery(api.aiAnalysis.getAnalysis, {});
-
-  const sevClass = (s: string) => {
-    switch (s) {
-      case "critical": return "bg-red-500/20 text-red-400 border-red-500/30";
-      case "high": return "bg-orange-500/20 text-orange-400 border-orange-500/30";
-      case "medium": return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
-      case "low": return "bg-green-500/20 text-green-400 border-green-500/30";
-      default: return "bg-gray-500/20 text-gray-400 border-gray-500/30";
-    }
-  };
-
   const [analysisType, setAnalysisType] = useState<string>("all");
   const [targetType, setTargetType] = useState<string>("all");
   const [minConfidence, setMinConfidence] = useState<number>(0);
@@ -40,6 +28,16 @@ export default function AIAnalysisView() {
   const runAI = useAction(api.ai.generateAndSaveAnalysis);
   const createSamples = useMutation(api.aiAnalysis.createSampleAnalyses);
   const saveAnalysis = useMutation(api.aiAnalysis.saveAnalysisPublic);
+  const deleteAnalysis = useMutation(api.aiAnalysis.deleteAnalysis);
+
+  const handleDelete = async (id: any) => {
+    try {
+      await deleteAnalysis({ id });
+      toast.success("Analysis deleted");
+    } catch (e) {
+      toast.error("Failed to delete analysis");
+    }
+  };
 
   const analysesQuery = useQuery(api.aiAnalysis.getAnalysis, {
     analysisType,
@@ -98,6 +96,16 @@ export default function AIAnalysisView() {
         : `AI analysis failed: ${msg}`);
     } finally {
       setRunning(false);
+    }
+  };
+
+  const sevClass = (s: string) => {
+    switch (s) {
+      case "critical": return "bg-red-500/20 text-red-400 border-red-500/30";
+      case "high": return "bg-orange-500/20 text-orange-400 border-orange-500/30";
+      case "medium": return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
+      case "low": return "bg-green-500/20 text-green-400 border-green-500/30";
+      default: return "bg-gray-500/20 text-gray-400 border-gray-500/30";
     }
   };
 
@@ -278,9 +286,17 @@ export default function AIAnalysisView() {
                       ))}
                     </ul>
                   </div>
-                  <div className="flex-shrink-0 flex flex-col items-end">
+                  <div className="flex-shrink-0 flex flex-col items-end gap-2">
                     <Badge className={sevClass(a.severity)}>{a.severity}</Badge>
-                    <span className="text-xs text-muted-foreground mt-1">Confidence: {a.confidence}%</span>
+                    <span className="text-xs text-muted-foreground">Confidence: {a.confidence}%</span>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-6 w-6 text-muted-foreground hover:text-red-400"
+                      onClick={() => handleDelete(a._id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
               </div>

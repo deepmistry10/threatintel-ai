@@ -4,14 +4,30 @@ import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, AlertTriangle, CheckCircle2, Lightbulb, TrendingUp, Shield, Activity, Download } from "lucide-react";
+import { Search, AlertTriangle, CheckCircle2, Lightbulb, TrendingUp, Shield, Activity, Download, ShieldAlert } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
+import { useMutation } from "convex/react";
 
 export default function ThreatHunt() {
   const [keyword, setKeyword] = useState("");
   const results = useQuery(api.hunt.getHuntResults, { keyword: keyword || undefined, limit: 50 });
+  const createIncident = useMutation(api.incidents.create);
+
+  const handleEscalate = async (result: any) => {
+    try {
+      await createIncident({
+        title: `Escalated Hunt: ${result.title.slice(0, 50)}`,
+        description: `Escalated from Threat Hunt.\n\nSource: ${result.source}\nType: ${result.type}\nDetails: ${result.description}\n\nOriginal Timestamp: ${new Date(result.timestamp).toLocaleString()}`,
+        severity: result.severity === "critical" ? "critical" : result.severity === "high" ? "high" : "medium",
+      });
+      toast.success("Incident created from hunt result");
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to create incident");
+    }
+  };
 
   const sevClass = (s: string) => {
     switch (s) {

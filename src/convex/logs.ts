@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { getCurrentUser } from "./users";
 
 export const getLogs = query({
   args: {
@@ -115,5 +116,28 @@ export const createSampleLogs = mutation({
     }
 
     return { created: sampleLogs.length };
+  },
+});
+
+export const addLog = mutation({
+  args: {
+    source: v.string(),
+    level: v.string(),
+    message: v.string(),
+    sourceIp: v.optional(v.string()),
+    additionalDetails: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.insert("securityLogs", {
+      source: args.source,
+      level: args.level,
+      message: args.message,
+      timestamp: Date.now(),
+      anomalyScore: 0, // Default to 0 for manual logs
+      metadata: {
+        sourceIp: args.sourceIp,
+        details: args.additionalDetails,
+      },
+    });
   },
 });
